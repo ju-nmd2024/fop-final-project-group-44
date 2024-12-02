@@ -6,6 +6,9 @@ let gameActive = false;
 let startMenu = true;
 // Is true when the result screen should be showing
 let resultScreen = false;
+let startHitbox = false;
+let retryHitbox = false;
+let quitHitbox = false;
 
 function setup() {
   createCanvas(500, 500);
@@ -63,7 +66,7 @@ function backgroundBricks(brickX, brickY) {
 //Draws the full start screen
 function startButton() {
   push();
-  background (190);
+  background(190);
   strokeWeight(6);
   stroke(0);
   fill(255, 128, 0);
@@ -113,7 +116,17 @@ function mousePressed() {
     gameActive = true;
     positionball = { x: 100, y: 100 };
     ballspeed = { x: 3, y: 3 };
-  } 
+    ballons = [];
+    for (let a = 0; a < width; a += 50) {
+      for (let b = 0; b < 80; b += 20) {
+        ballons.push({
+          x: a,
+          y: b,
+          destroyed: false, // Reset to unpopped state
+        });
+      }
+    } //to fix we need to cleat ballons[] array and re install the loop
+  }
   //quit button that take you back to the start menu
   else if (quitHitbox === true && gameActive === false) {
     resultScreen = false;
@@ -152,30 +165,24 @@ function draw() {
   //Hitbox for the "Play" button.
   if (mouseX >= 125 && mouseX <= 375 && mouseY >= 230 && mouseY <= 355) {
     startHitbox = true;
-  } 
-  
-  else {
-      startHitbox = false;
+  } else {
+    startHitbox = false;
   }
 
   //Hitbox for the "Retry" button.
   if (mouseX >= 100 && mouseX <= 250 && mouseY >= 330 && mouseY <= 400) {
     retryHitbox = true;
-  } 
-  
-  else {
-      retryHitbox = false;
+  } else {
+    retryHitbox = false;
   }
 
   //Hitbox for the "Quit" button.
   if (mouseX >= 250 && mouseX <= 400 && mouseY >= 330 && mouseY <= 400) {
     quitHitbox = true;
-  } 
-
-  else {
-      quitHitbox = false;
+  } else {
+    quitHitbox = false;
   }
-  
+
   //Calls the start menu
   if (startMenu === true) {
     startButton();
@@ -187,81 +194,83 @@ function draw() {
   }
 
   if (gameActive === true) {
-  // Draw paddle
-  bottomStick();
+    // Draw paddle
+    bottomStick();
 
-  // Draw ball
-  ball();
+    // Draw ball
+    ball();
 
-  // Ball movement
-  positionball.x += ballspeed.x;
-  positionball.y += ballspeed.y;
+    // Ball movement
+    positionball.x += ballspeed.x;
+    positionball.y += ballspeed.y;
 
-  // Paddle movement
-  if (keyIsDown(37)) {
-    positionrect.x -= 15; // Move left
-  }
-  if (keyIsDown(39)) {
-    positionrect.x += 15; // Move right
-  }
-
-  //borrder for the paddle
-  if (positionrect.x >= rectmax.x) {
-    positionrect.x = 400;
-  }
-
-  if (positionrect.x <= rectmin.x) {
-    positionrect.x = 0;
-  }
-
-  //border for ball
-  if (positionball.x - ballradius <= 0 || positionball.x + ballradius >= 500) {
-    ballspeed.x *= -1; // change the direction
-  }
-
-  if (positionball.y - ballradius <= 0) {
-    ballspeed.y *= -1; // change the direction
-  }
-
-  //detects if you miss the ball and send you to the result screen
-  if (positionball.y - ballradius >= 480) {
-    gameActive = false;
-    resultScreen = true;
-  }
-  else {
-    resultScreen = false;
-  }
-
-  // ball and paddle
-  if (
-    positionball.y + ballradius >= positionrect.y + 350 &&
-    positionball.x >= positionrect.x &&
-    positionball.x <= positionrect.x + 100
-  ) {
-    ballspeed.y *= -1;
-
-    //add angle
-    let offset = (positionball.x - (positionrect.x + 50)) / 50;
-    ballspeed.x += offset * 2;
-  }
-
-  ballons.some((bricks) => {
-    if (!bricks.destroyed) {
-      fill(255, 128, 0);
-      rect(bricks.x, bricks.y, ballon.width, ballon.height);
-
-      if (
-        positionball.x + ballradius >= bricks.x &&
-        positionball.x - ballradius <= bricks.x + ballon.width &&
-        positionball.y + ballradius >= bricks.y &&
-        positionball.y - ballradius <= bricks.y + ballon.height
-      ) {
-        ballspeed.y *= -1;
-        bricks.destroyed = true; // Mark brick as destroyed
-        return true; // loop exir
-      }
+    // Paddle movement
+    if (keyIsDown(37)) {
+      positionrect.x -= 15; // Move left
     }
-    return false; //prevents poping multiple bricks at same time
-  });
-}
+    if (keyIsDown(39)) {
+      positionrect.x += 15; // Move right
+    }
+
+    //borrder for the paddle
+    if (positionrect.x >= rectmax.x) {
+      positionrect.x = 400;
+    }
+
+    if (positionrect.x <= rectmin.x) {
+      positionrect.x = 0;
+    }
+
+    //border for ball
+    if (
+      positionball.x - ballradius <= 0 ||
+      positionball.x + ballradius >= 500
+    ) {
+      ballspeed.x *= -1; // change the direction
+    }
+
+    if (positionball.y - ballradius <= 0) {
+      ballspeed.y *= -1; // change the direction
+    }
+
+    //detects if you miss the ball and send you to the result screen
+    if (positionball.y - ballradius >= 480) {
+      gameActive = false;
+      resultScreen = true;
+    } else {
+      resultScreen = false;
+    }
+
+    // ball and paddle
+    if (
+      positionball.y + ballradius >= positionrect.y + 350 &&
+      positionball.x >= positionrect.x &&
+      positionball.x <= positionrect.x + 100
+    ) {
+      ballspeed.y *= -1;
+
+      //add angle
+      let offset = (positionball.x - (positionrect.x + 50)) / 50;
+      ballspeed.x += offset * 2;
+    }
+
+    ballons.some((bricks) => {
+      if (!bricks.destroyed) {
+        fill(255, 128, 0);
+        rect(bricks.x, bricks.y, ballon.width, ballon.height);
+
+        if (
+          positionball.x + ballradius >= bricks.x &&
+          positionball.x - ballradius <= bricks.x + ballon.width &&
+          positionball.y + ballradius >= bricks.y &&
+          positionball.y - ballradius <= bricks.y + ballon.height
+        ) {
+          ballspeed.y *= -1;
+          bricks.destroyed = true; // Mark brick as destroyed
+          return true; // loop exir
+        }
+      }
+      return false; //prevents poping multiple bricks at same time
+    });
+  }
 }
