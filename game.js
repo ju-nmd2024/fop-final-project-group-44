@@ -6,20 +6,20 @@ let gameActive = false;
 let startMenu = true;
 // Is true when the result screen should be showing
 let resultScreen = false;
+// Is true when the mouse is within the respective button hitbox
 let startHitbox = false;
 let retryHitbox = false;
 let quitHitbox = false;
-
-let gameWon = false;
-let nextLevel = false;
+// Keeps track of your points and when the game ends (at 40 points)
+let finishCounter = 0;
 
 function setup() {
   createCanvas(500, 500);
   background(190);
 
   // Initialize ballons (bricks)
-  for (let a = 0; a < 50; a += 50) {
-    for (let b = 0; b < 20; b += 20) {
+  for (let a = 0; a < width; a += 50) {
+    for (let b = 0; b < 80; b += 20) {
       ballons.push({
         x: a,
         y: b,
@@ -109,19 +109,35 @@ function startButton() {
 function mousePressed() {
   //Start button that loads the game.
   if (startHitbox === true && startMenu === true) {
+    finishCounter = 0;
     startMenu = false;
     gameActive = true;
     positionball = { x: 100, y: 100 };
     ballspeed = { x: 3, y: 3 };
+    positionrect = { x: 400, y: 100, z: 200 };
+    ballons = [];
+    for (let a = 0; a < width; a += 50) {
+      for (let b = 0; b < 80; b += 20) {
+        ballons.push({
+          x: a,
+          y: b,
+          destroyed: false, // Reset to unpopped state
+        });
+      }
+    } //to fix we need to cleat ballons[] array and re install the loop
   }
   //Retry button that restarts the game
   else if (retryHitbox === true && gameActive === false) {
+    resultScreen = false;
+    finishCounter = 0;
     gameActive = true;
+    startMenu = false;
     positionball = { x: 100, y: 100 };
     ballspeed = { x: 3, y: 3 };
+    positionrect = { x: 400, y: 100, z: 200 };
     ballons = [];
-    for (let a = 0; a < 50; a += 50) {
-      for (let b = 0; b < 20; b += 20) {
+    for (let a = 0; a < width; a += 50) {
+      for (let b = 0; b < 80; b += 20) {
         ballons.push({
           x: a,
           y: b,
@@ -131,13 +147,13 @@ function mousePressed() {
     } //to fix we need to cleat ballons[] array and re install the loop
   }
   //quit button that take you back to the start menu
-
-  
-  else if (nextLevel === true && gameActive === false){
-    
+  else if (quitHitbox === true && gameActive === false) {
+    resultScreen = false;
+    finishCounter = 0;
+    resultScreen = false;
+    startMenu = true;
   }
 }
-
 
 //Draws the full result screen
 function resultButtons() {
@@ -153,43 +169,52 @@ function resultButtons() {
   rect(100, 330, 150, 70);
   rect(250, 330, 150, 70);
   noStroke();
-  fill(0);
-  textSize(40);
-  text("Retry", 125, 380);
-  text("Quit", 280, 380);
-  textSize(60);
-  text("GAME", 170, 140, 200, 200);
-  text("OVER", 170, 205, 200, 200);
-  pop();
-}
 
-//Winning screen 
-function WonScreen() {
-  push();
-  background(160);
-  strokeWeight(5);
-  stroke(0);
-  fill(190);
-  rect(100, 100, 300, 300);
-  strokeWeight(3);
-  stroke(0);
-  fill(255, 128, 0);
-  rect(100, 330, 150, 70);
-  rect(250, 330, 150, 70);
-  noStroke();
-  fill(0);
-  textSize(40);
-  text("Next Level", 125, 380);
-  text("Quit", 280, 380);
-  textSize(60);
-  text("GAME", 170, 140, 200, 200);
-  text("WON", 170, 205, 200, 200);
+  if (finishCounter === 1) {
+    textSize(20);
+    fill(255, 128, 0);
+    text("Score: " + finishCounter + " point", 110, 320);
+    fill(0);
+    textSize(40);
+    text("Retry", 125, 380);
+    text("Quit", 280, 380);
+    textSize(60);
+    text("GAME", 170, 140, 200, 200);
+    text("OVER", 170, 205, 200, 200);
+  }
+  else if (finishCounter === 40) {
+    textSize(20);
+    fill(255, 128, 0);
+    text("Score: " + finishCounter + " points!!!", 110, 320);
+    fill(0);
+    textSize(40);
+    text("Again", 125, 380);
+    text("Quit", 280, 380);
+    textSize(60);
+    text("YOU", 180, 140, 200, 200);
+    text("WIN!", 180, 205, 200, 200);
+  }
+  else {
+    textSize(20);
+    fill(255, 128, 0);
+    text("Score: " + finishCounter + " points", 110, 320);
+    fill(0);
+    textSize(40);
+    text("Retry", 125, 380);
+    text("Quit", 280, 380);
+    textSize(60);
+    text("GAME", 170, 140, 200, 200);
+    text("OVER", 170, 205, 200, 200);
+  }
   pop();
 }
 
 function draw() {
   frameRate(60);
   background(190);
+
+  textSize(20);
+  text("Points: " + finishCounter, 10, 110);
 
   //Hitbox for the "Play" button.
   if (mouseX >= 125 && mouseX <= 375 && mouseY >= 230 && mouseY <= 355) {
@@ -221,15 +246,9 @@ function draw() {
   if (resultScreen === true) {
     resultButtons();
   }
-  if (ballons.every(brick => brick.destroyed)) {
-    gameActive = false;
-    gameWon = true;
-  }
-  if (gameWon === true){
-    WonScreen();
-  }
 
   if (gameActive === true) {
+
     // Draw paddle
     bottomStick();
 
@@ -242,10 +261,10 @@ function draw() {
 
     // Paddle movement
     if (keyIsDown(37)) {
-      positionrect.x -= 15; // Move left
+      positionrect.x -= 3; // Move left
     }
     if (keyIsDown(39)) {
-      positionrect.x += 15; // Move right
+      positionrect.x += 3; // Move right
     }
 
     //borrder for the paddle
@@ -303,10 +322,16 @@ function draw() {
         ) {
           ballspeed.y *= -1;
           bricks.destroyed = true; // Mark brick as destroyed
+          finishCounter += 1;
           return true; // loop exir
         }
       }
       return false; //prevents poping multiple bricks at same time
     });
+  }
+  //Detects when you have popped all bricks and won
+  if (finishCounter >= 40) {
+    gameActive = false;
+    resultScreen = true;
   }
 }
