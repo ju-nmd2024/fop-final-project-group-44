@@ -336,4 +336,10 @@ function draw() {
     gameActive = false;
     resultScreen = true;
   }
+  push();
+  noFill();
+  stroke(0);
+  strokeWeight(4);
+  rect(0, 0, 500, 500);
+  pop();
 }
