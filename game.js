@@ -13,7 +13,7 @@ let quitHitbox = false;
 // Keeps track of your points and when the game ends (at 40 points)
 let finishCounter = 0;
 // Scale up
-let s = 2.1;
+let s = 1.8;
 
 function setup() {
   createCanvas(500 * s, 500 * s);
