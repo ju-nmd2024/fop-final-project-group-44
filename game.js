@@ -12,9 +12,11 @@ let retryHitbox = false;
 let quitHitbox = false;
 // Keeps track of your points and when the game ends (at 40 points)
 let finishCounter = 0;
+// Scale up
+let s = 2;
 
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(500 * s, 500 * s);
   background(190);
 
   // Initialize ballons (bricks)
@@ -210,28 +212,28 @@ function resultButtons() {
 }
 
 function draw() {
+  scale(2);
   frameRate(60);
   background(190);
-
   textSize(20);
   text("Points: " + finishCounter, 10, 110);
 
   //Hitbox for the "Play" button.
-  if (mouseX >= 125 && mouseX <= 375 && mouseY >= 230 && mouseY <= 355) {
+  if (mouseX >= 125 * s && mouseX <= 375 * s && mouseY >= 230 * s && mouseY <= 355 * s) {
     startHitbox = true;
   } else {
     startHitbox = false;
   }
 
   //Hitbox for the "Retry" button.
-  if (mouseX >= 100 && mouseX <= 250 && mouseY >= 330 && mouseY <= 400) {
+  if (mouseX >= 100 * s && mouseX <= 250 * s && mouseY >= 330 * s && mouseY <= 400 * s) {
     retryHitbox = true;
   } else {
     retryHitbox = false;
   }
 
   //Hitbox for the "Quit" button.
-  if (mouseX >= 250 && mouseX <= 400 && mouseY >= 330 && mouseY <= 400) {
+  if (mouseX >= 250 * s && mouseX <= 400 * s && mouseY >= 330 * s && mouseY <= 400 * s) {
     quitHitbox = true;
   } else {
     quitHitbox = false;
