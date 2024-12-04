@@ -340,6 +340,6 @@ function draw() {
   noFill();
   stroke(0);
   strokeWeight(4);
-  rect(0, 0, 500, 500);
+  rect(2, 2, 496, 496);
   pop();
 }
